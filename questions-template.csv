@@ -1,0 +1,13 @@
+match,round,order,category,question_en,question_ar,answer_en,answer_ar,option_a,option_b,option_c,option_d,correct
+0,1,1,Culture,What is the capital of Algeria?,ما هي عاصمة الجزائر؟,Algiers,الجزائر العاصمة,Oran,Algiers,Constantine,Annaba,B
+0,1,2,Culture,In which year did Algeria gain its independence?,في أي سنة استقلت الجزائر؟,1962,1962,1954,1958,1962,1965,C
+0,1,3,Sports,How many players does a football team have on the pitch?,كم عدد لاعبي فريق كرة القدم داخل الملعب؟,11,11,9,10,11,12,C
+0,1,4,Literature,"Who wrote the novel ""Nedjma""?",من كتب رواية «نجمة»؟,Kateb Yacine,كاتب ياسين,Mohammed Dib,Kateb Yacine,Assia Djebar,Mouloud Feraoun,B
+0,1,5,Art,Who painted the Mona Lisa?,من رسم لوحة الموناليزا؟,Leonardo da Vinci,ليوناردو دا فينشي,Michelangelo,Raphael,Leonardo da Vinci,Rembrandt,C
+0,2,1,Hydraulics,What is the SI unit of pressure?,ما هي وحدة الضغط في النظام الدولي للوحدات؟,The pascal (Pa),الباسكال,Newton,Pascal,Joule,Bar,B
+0,2,2,Hydraulics,Which dimensionless number tells whether a flow is laminar or turbulent?,ما هو العدد اللابعدي الذي يحدد ما إذا كان الجريان صفائحيًا أو مضطربًا؟,The Reynolds number,عدد رينولدز,Froude,Reynolds,Mach,Weber,B
+0,2,3,Hydraulics,"What is the density of pure water at 4 °C, in kg/m³?",ما هي كثافة الماء النقي عند 4 درجات مئوية بوحدة كغ/م³؟,1000 kg/m³,1000 كغ/م³,900,998,1000,1025,C
+0,2,4,Science & tech,What is the chemical symbol of gold?,ما هو الرمز الكيميائي للذهب؟,Au,Au,Ag,Au,Gd,Go,B
+0,2,5,Algeria,What is the largest country in Africa by area?,ما هي أكبر دولة في إفريقيا من حيث المساحة؟,Algeria,الجزائر,Sudan,DR Congo,Algeria,Libya,C
+0,SD,1,Sudden death,"At what temperature does water boil at sea level, in °C?",عند أي درجة حرارة يغلي الماء عند مستوى سطح البحر بالدرجة المئوية؟,100 °C,100 درجة مئوية,90,100,110,120,B
+0,SD,2,Sudden death,Which planet is known as the Red Planet?,ما هو الكوكب المعروف بالكوكب الأحمر؟,Mars,المريخ,Venus,Mars,Jupiter,Mercury,B

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Golden Buzzer · Control room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@600;700;800&family=Unbounded:wght@800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;font-family:Manrope,sans-serif;color:#fff;background:radial-gradient(120% 70% at 50% 110%,#0b62a8 0%,#053766 34%,#02182f 66%,#010b18 100%);padding:40px 24px}
+.wrap{max-width:1100px;margin:auto}
+h1{font:clamp(3rem,9vw,7rem) Anton;line-height:.9;text-transform:uppercase}h1 span{color:#FFBF00}
+p.lead{color:#b9d3e6;margin:14px 0 34px;font-weight:700;max-width:640px;line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.card{border-radius:22px;padding:22px;background:rgba(2,20,40,.6);border:1px solid rgba(138,204,228,.2)}
+.card h2{font:800 .8rem Unbounded;letter-spacing:.14em;color:#8ACCE4}
+.card b{display:block;font:2rem Anton;margin:6px 0 10px;text-transform:uppercase}
+.card p{color:#b9d3e6;font-size:.92rem;line-height:1.5;min-height:3em}
+.card a.go{display:inline-block;margin-top:14px;padding:12px 18px;border-radius:12px;background:#FFBF00;color:#241a00;font-weight:800;text-decoration:none}
+.qr{margin-top:14px;background:#fff;border-radius:14px;padding:12px;width:max-content}
+.opt{margin-top:28px;color:#8fa9bd;font-size:.9rem;line-height:1.7}
+.opt a{color:#8ACCE4}
+code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span>Golden</span> Buzzer<br>control room</h1>
+  <p class="lead">Open the host and the display on the laptop, then scan the two buzzer codes with the table phones.</p>
+  <div class="grid">
+    <div class="card"><h2>LAPTOP · TAB 1</h2><b>Host</b><p>Your control panel: questions, buzzers, scores, joker.</p><a class="go" id="lHost">Open host</a></div>
+    <div class="card"><h2>PROJECTOR · TAB 2</h2><b>Display</b><p>Drag this tab to the projector and click once to start (sound + full screen).</p><a class="go" id="lDisp" target="_blank">Open display</a></div>
+    <div class="card"><h2>LEFT TABLE PHONE</h2><b>Buzzer A</b><p>Scan with the left team's phone.</p><div class="qr" id="qA"></div><a class="go" id="lA" target="_blank">Open</a></div>
+    <div class="card"><h2>RIGHT TABLE PHONE</h2><b>Buzzer B</b><p>Scan with the right team's phone.</p><div class="qr" id="qB"></div><a class="go" id="lB" target="_blank">Open</a></div>
+  </div>
+  <p class="opt"><a id="mode" style="display:inline-block;padding:10px 16px;border-radius:12px;background:rgba(255,255,255,.1);color:#fff;font-weight:800;text-decoration:none"></a></p>
+  <p class="opt">Rehearsal or no internet? Add <code>?local</code> to the address to run everything offline on this computer (buzz with the <code>A</code> and <code>L</code> keys on the host).<br>
+  A second, separate game (for practice): add <code>?g=practice</code>.</p>
+</div>
+<script>
+const p = new URLSearchParams(location.search), base = location.href.replace(/[^/]*$/, '');
+const link = (page, extra = {}) => { const q = new URLSearchParams(p); Object.entries(extra).forEach(([k, v]) => q.set(k, v)); const s = q.toString(); return base + page + (s ? '?' + s : ''); };
+document.getElementById('lHost').href = link('host.html');
+document.getElementById('lDisp').href = link('display.html');
+document.getElementById('lA').href = link('buzzer.html', { team: 'A' });
+document.getElementById('lB').href = link('buzzer.html', { team: 'B' });
+const off = p.has('local'), m = document.getElementById('mode');
+m.textContent = off ? 'Offline mode is ON (this computer only) · switch to online' : 'Switch to offline mode (no internet, one laptop)';
+m.href = off ? location.pathname : '?local';
+['A', 'B'].forEach(t => { try { new QRCode(document.getElementById('q' + t), { text: link('buzzer.html', { team: t }), width: 180, height: 180, colorDark: '#021428', colorLight: '#ffffff' }); } catch (e) {} });
+</script>
+</body>
+</html>

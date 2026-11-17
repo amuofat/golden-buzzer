@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#021428">
+<title>Golden Buzzer · Buzzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@700;800&family=Unbounded:wght@800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden;background:#021428;color:#fff;font-family:Manrope,sans-serif;touch-action:manipulation}
+body{display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(18px + env(safe-area-inset-top)) 18px calc(22px + env(safe-area-inset-bottom));
+  background:radial-gradient(120% 70% at 50% 110%,#0b62a8 0%,#053766 34%,#02182f 66%,#010b18 100%)}
+.side{font:800 .8rem Unbounded;letter-spacing:.16em;color:#8ACCE4;text-align:center}
+.name{font:2.4rem Anton;text-transform:uppercase;text-align:center;line-height:1;margin-top:6px;max-width:92vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.score{font:800 1rem Unbounded;color:#FFBF00;text-align:center;margin-top:6px}
+#btn{position:relative;width:min(78vw,52vh);aspect-ratio:1;border-radius:50%;border:0;cursor:pointer;
+  background:radial-gradient(circle at 35% 30%,#4a6886,#1a3550 60%,#0e2338);box-shadow:0 14px 0 #08182a,0 30px 60px -20px rgba(0,0,0,.8);transition:transform .08s,box-shadow .08s,background .2s}
+#btn span{position:absolute;inset:0;display:grid;place-items:center;font:2.6rem Anton;letter-spacing:.06em;color:rgba(255,255,255,.35)}
+body.armed #btn{background:radial-gradient(circle at 34% 28%,#fffbe6 0,#ffe48a 13%,#FFD75E 28%,#FFBF00 56%,#d99a00 84%,#a77400 100%);box-shadow:0 14px 0 #8f6400,0 40px 80px -10px rgba(255,191,0,.8)}
+body.armed #btn span{color:rgba(90,60,0,.7)}
+body.armed #btn::after{content:"";position:absolute;inset:-12px;border-radius:50%;border:4px solid rgba(255,214,110,.7);animation:ring 1.2s ease-out infinite}
+@keyframes ring{from{transform:scale(1);opacity:1}to{transform:scale(1.25);opacity:0}}
+#btn:active,#btn.down{transform:translateY(10px);box-shadow:0 4px 0 #08182a}
+body.armed #btn:active,body.armed #btn.down{box-shadow:0 4px 0 #8f6400}
+body.mine #btn{background:radial-gradient(circle at 35% 30%,#fffbe6,#FFD75E 30%,#FFBF00 65%,#c98f00);box-shadow:0 0 70px 20px rgba(255,191,0,.6)}
+body.mine #btn span{color:#241a00}
+body.locked #btn{background:radial-gradient(circle at 35% 30%,#ffd0d0,#ff5a5a 45%,#a51d1d);opacity:.6}
+.status{font:800 1.25rem Unbounded;text-align:center;min-height:3.2em;display:grid;place-items:center;line-height:1.3}
+.conn{font:700 .75rem Manrope;color:#8fa9bd}
+#pick{position:fixed;inset:0;display:none;flex-direction:column;justify-content:center;gap:18px;padding:30px;background:#021428}
+#pick a{display:block;padding:26px;border-radius:20px;text-align:center;font:2rem Anton;color:#241a00;background:#FFBF00;text-decoration:none}
+#pick a+a{background:#45B4E2}
+</style>
+</head>
+<body>
+<div><div class="side" id="side"></div><div class="name" id="name">…</div><div class="score" id="score"></div></div>
+<button id="btn" aria-label="Buzz"><span id="lab">WAIT</span></button>
+<div><div class="status" id="status">Connecting…</div><div class="conn" id="conn" style="text-align:center"></div></div>
+<div id="pick"><div class="side">Which table is this phone on?</div><a id="pa">LEFT TABLE</a><a id="pb">RIGHT TABLE</a></div>
+<script src="gb.js"></script>
+<script>
+const { connect, SFX, audio, params } = GB;
+const $ = id => document.getElementById(id);
+const team = (params.get('team') || '').toUpperCase();
+if (team !== 'A' && team !== 'B') {
+  const u = t => { const p = new URLSearchParams(location.search); p.set('team', t); return '?' + p; };
+  $('pa').href = u('A'); $('pb').href = u('B'); $('pick').style.display = 'flex';
+}
+let S = null, store = null, wake = null;
+$('side').textContent = team === 'A' ? 'LEFT TABLE' : 'RIGHT TABLE';
+
+async function keepAwake() { try { wake = await navigator.wakeLock?.request('screen'); } catch (e) {} }
+document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && keepAwake());
+
+function render() {
+  const b = document.body;
+  b.className = '';
+  if (!S) { $('status').textContent = 'Waiting for the host…'; $('lab').textContent = 'WAIT'; return; }
+  const me = S.teams[team], locked = (S.locked || []).includes(team);
+  $('name').textContent = me.name; $('score').textContent = `${me.score} pts${me.joker ? ' · joker ready' : ''}`;
+  let st = 'Get ready…', lab = 'WAIT';
+  if (S.buzz && S.buzz.team === team) { b.classList.add('mine'); st = 'You buzzed first! Answer now'; lab = 'YOU!'; }
+  else if (S.buzz) { st = `${S.teams[S.buzz.team].name} buzzed first`; }
+  else if (S.armed && locked) { b.classList.add('locked'); st = 'Locked for this question'; }
+  else if (S.armed) { b.classList.add('armed'); st = 'BUZZ!'; lab = 'BUZZ'; }
+  else if ((S.phase === 'answer' || S.phase === 'steal') && S.answering === team) { b.classList.add('mine'); st = S.phase === 'steal' ? 'Your chance to steal! Answer now' : 'Your turn to answer'; lab = 'YOU!'; }
+  else if (S.phase === 'steal') { st = `${S.teams[S.answering].name} is stealing`; }
+  else if (S.phase === 'reveal') st = 'Answer revealed';
+  else if (S.phase === 'final') st = S.winner === team ? 'You won!' : 'Good game!';
+  $('status').textContent = st; $('lab').textContent = lab;
+}
+
+const press = async e => {
+  e.preventDefault(); audio();
+  const btn = $('btn'); btn.classList.add('down'); setTimeout(() => btn.classList.remove('down'), 120);
+  if (!S || !S.armed || !store) return;
+  navigator.vibrate?.(80);
+  try { const ok = await store.tryBuzz(team); if (ok) SFX.buzz(); } catch (err) { $('conn').textContent = 'Buzz failed, check connection'; }
+};
+$('btn').addEventListener('pointerdown', press);
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+(async () => {
+  if (team !== 'A' && team !== 'B') return;
+  keepAwake();
+  try {
+    store = await connect();
+    $('conn').textContent = store.mode === 'local' ? 'Offline mode' : 'Connected';
+    store.subscribe(s => { S = s; render(); }, () => $('conn').textContent = 'Connection problem…');
+  } catch (e) { $('status').textContent = 'Cannot connect'; }
+})();
+</script>
+</body>
+</html>

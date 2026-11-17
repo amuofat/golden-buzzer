@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Golden Buzzer · Display</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@600;700;800&family=Unbounded:wght@700;800&family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#FFBF00;--gold2:#FFD75E;--c1:#8ACCE4;--c2:#45B4E2;--blue:#0071BC;--night:#021428;--red:#ff5a5a;--ease:cubic-bezier(.22,.8,.24,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#010b18;color:#fff;font-family:Manrope,sans-serif}
+#stage{position:fixed;left:50%;top:50%;width:100vw;height:56.25vw;max-height:100vh;max-width:177.78vh;transform:translate(-50%,-50%);overflow:hidden;
+  background:radial-gradient(120% 80% at 50% 115%,#0b62a8 0%,#053766 34%,#02182f 66%,#010b18 100%);font-size:1vw;container-type:size}
+@supports (width:1cqw){#stage{font-size:1cqw}}
+.beam{position:absolute;top:-10%;width:60em;height:130%;transform-origin:50% 0;mix-blend-mode:screen;filter:blur(.6em);clip-path:polygon(47% 0,53% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,214,110,.28),rgba(255,214,110,0) 85%)}
+.beam.b{background:linear-gradient(180deg,rgba(69,180,226,.28),rgba(69,180,226,0) 85%)}
+#bA{left:-24em;animation:swA 9s ease-in-out infinite alternate}#bB{right:-24em;animation:swB 11s ease-in-out infinite alternate}
+@keyframes swA{from{transform:rotate(-30deg)}to{transform:rotate(-10deg)}}@keyframes swB{from{transform:rotate(30deg)}to{transform:rotate(10deg)}}
+.bulbs{position:absolute;left:1.2em;right:1.2em;display:flex;justify-content:space-between}
+.bulbs i{width:.7em;height:.7em;border-radius:50%;background:#5c4600;animation:bulb 1.2s steps(1) infinite}
+.bulbs i:nth-child(3n+2){animation-delay:-.4s}.bulbs i:nth-child(3n){animation-delay:-.8s}
+@keyframes bulb{0%{background:#fff2bf;box-shadow:0 0 .8em .25em rgba(255,191,0,.85)}33%{background:#5c4600;box-shadow:none}}
+.top{position:absolute;left:3em;right:3em;top:2.6em;display:flex;justify-content:space-between;align-items:center;height:7em}
+.lbl{font:800 1.5em Unbounded;letter-spacing:.08em;color:var(--c1)}.lbl b{color:#fff}
+.chip{display:inline-block;margin-left:.8em;padding:.35em .9em;border-radius:99em;background:rgba(255,191,0,.15);color:var(--gold2);font-size:.75em}
+.logo{height:5.6em}
+#ring{position:absolute;left:50%;top:1.6em;width:9em;height:9em;margin-left:-4.5em;opacity:0;transition:opacity .4s}
+#ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+#ring .num{position:absolute;inset:0;display:grid;place-items:center;font:4em Anton}
+#ring.low .num{color:var(--red)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0;pointer-events:none;transition:opacity .5s var(--ease),transform .6s var(--ease);transform:scale(.97)}
+.screen.on{opacity:1;transform:none}
+.title{font-family:Anton;text-transform:uppercase;line-height:.88}
+#lobby .title{font-size:13em}#lobby .vs{margin-top:1em;display:flex;align-items:center;gap:1.4em;font:800 3em Unbounded}
+#lobby .vs i{font:normal 1.4em Anton;color:var(--gold)}
+.kick{font:800 1.7em Unbounded;letter-spacing:.14em;color:var(--c1);margin-bottom:1em}
+#intro .title{font-size:16em}#intro .x2{margin-top:.6em;padding:.4em 1.2em;border-radius:99em;background:var(--gold);color:#241a00;font:800 2.6em Unbounded}
+#qv{justify-content:flex-start;padding:13em 8em 0}
+.qen{font:800 4.1em/1.22 Manrope;letter-spacing:-.02em;max-width:22em}
+.qar{font:700 3.6em/1.5 Cairo;color:var(--c1);direction:rtl;margin-top:.35em;max-width:24em}
+.cat{font:800 1.3em Unbounded;letter-spacing:.14em;color:var(--gold);margin-bottom:1.4em;text-transform:uppercase}
+.below{margin-top:2.2em;min-height:10em;display:flex;justify-content:center;width:100%}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:1em;width:min(80em,100%)}
+.opts div{display:flex;align-items:center;gap:1em;padding:1em 1.4em;border-radius:1.2em;background:rgba(255,255,255,.07);border:.15em solid rgba(138,204,228,.3);font:800 2.3em Manrope;text-align:left;opacity:0;transform:translateY(1em);transition:all .5s var(--ease)}
+.opts.on div{opacity:1;transform:none}.opts div:nth-child(2){transition-delay:.1s}.opts div:nth-child(3){transition-delay:.2s}.opts div:nth-child(4){transition-delay:.3s}
+.opts b{color:var(--gold);font-family:Anton;font-weight:400;font-size:1.2em}
+.opts div.good{background:var(--gold);color:#241a00;border-color:var(--gold)}.opts div.good b{color:#241a00}
+.answer{padding:1.2em 2.6em;border-radius:1.6em;background:var(--gold);color:#241a00;box-shadow:0 0 6em 1em rgba(255,191,0,.35);animation:pop .6s var(--ease)}
+.answer small{display:block;font:800 1.2em Unbounded;letter-spacing:.14em;opacity:.7}
+.answer b{display:block;font:3.6em Anton;text-transform:uppercase;line-height:1.1}
+.answer span{display:block;font:900 2.4em Cairo;direction:rtl}
+.aud{padding:1.4em 2.6em;border-radius:1.6em;border:.2em solid var(--c2);background:rgba(69,180,226,.12);animation:pop .6s var(--ease)}
+.aud b{display:block;font:3em Anton;color:var(--c1)}.aud span{font:700 1.8em Manrope}
+@keyframes pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.pods{position:absolute;left:3em;right:3em;bottom:3.6em;display:flex;justify-content:space-between;align-items:flex-end;opacity:0;transition:opacity .5s}
+.pods.on{opacity:1}
+.pod{display:flex;align-items:center;gap:1.6em;padding:1.2em 2em 1.2em 1.2em;border-radius:99em;background:rgba(2,20,40,.55);border:.15em solid rgba(138,204,228,.2);min-width:32em;transition:all .4s var(--ease)}
+.pod.r{flex-direction:row-reverse;padding:1.2em 1.2em 1.2em 2em;text-align:right}
+.lamp{width:6.4em;height:6.4em;border-radius:50%;flex:0 0 auto;background:radial-gradient(circle at 35% 30%,#3d5d7c,#12293f);box-shadow:inset 0 -.4em .8em rgba(0,0,0,.45);transition:all .25s}
+.pod.lit .lamp{background:radial-gradient(circle at 35% 30%,#fffbe6,var(--gold2) 30%,var(--gold) 65%,#c98f00);box-shadow:0 0 4em 1em rgba(255,191,0,.6)}
+.pod.lit{border-color:var(--gold);transform:scale(1.04)}
+.pod.bad .lamp{background:radial-gradient(circle at 35% 30%,#ffd0d0,#ff5a5a 45%,#a51d1d);box-shadow:0 0 3em .8em rgba(255,80,80,.5)}
+.pod.locked{opacity:.55}
+.pn{font:800 2em Unbounded;max-width:14em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ps{font:5.4em Anton;line-height:1;color:var(--gold)}
+.meta{display:flex;gap:.6em;margin-top:.3em;font:800 1em Unbounded;letter-spacing:.08em}
+.pod.r .meta{justify-content:flex-end}
+.tag{padding:.3em .8em;border-radius:99em;background:rgba(255,191,0,.18);color:var(--gold2)}.tag.off{background:rgba(255,255,255,.08);color:#7f97ab;text-decoration:line-through}
+.tag.ans{background:var(--gold);color:#241a00}
+#banner{position:absolute;left:0;right:0;top:41%;text-align:center;font:9em Anton;text-transform:uppercase;letter-spacing:.02em;opacity:0;pointer-events:none;text-shadow:0 0 .5em rgba(0,0,0,.6)}
+#banner.go{animation:ban 1.7s var(--ease) forwards}
+@keyframes ban{0%{opacity:0;transform:scale(1.6)}12%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(.95)}}
+#flash{position:absolute;inset:0;pointer-events:none;opacity:0}
+#wov{position:absolute;inset:0;display:grid;place-items:center;background:rgba(2,20,40,.84);opacity:0;pointer-events:none;transition:opacity .4s}
+#wov.on{opacity:1}
+.ww{position:relative}
+.ptr{position:absolute;left:50%;top:-2.6em;transform:translateX(-50%);border-left:1.8em solid transparent;border-right:1.8em solid transparent;border-top:3.4em solid #fff;z-index:2;filter:drop-shadow(0 .3em .4em rgba(0,0,0,.5))}
+#wh{width:38em;height:38em;border-radius:50%;position:relative;background:conic-gradient(var(--gold) 0 90deg,var(--blue) 0 180deg,var(--gold2) 0 270deg,var(--c2) 0);box-shadow:0 0 0 .8em #fff,0 0 0 1.3em rgba(255,191,0,.55),0 2em 6em rgba(0,0,0,.6)}
+#wh::after{content:"";position:absolute;left:50%;top:50%;width:6em;height:6em;transform:translate(-50%,-50%);border-radius:50%;background:var(--night);box-shadow:0 0 0 .6em #fff}
+.wl{position:absolute;left:50%;top:50%;font:800 2.2em Unbounded;white-space:nowrap;color:#241a00}.wl.w{color:#fff}
+#wres{position:absolute;bottom:6%;left:0;right:0;text-align:center;font:6em Anton;color:var(--gold);opacity:0;transition:opacity .4s}
+#final .who{font-size:12em;color:var(--gold);max-width:90%;line-height:.95}
+#final .sc{margin-top:.6em;font:800 3em Unbounded;color:var(--c1)}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#start{position:fixed;inset:0;z-index:99;display:grid;place-items:center;background:rgba(1,11,24,.92);cursor:pointer;text-align:center}
+#start b{display:block;font:5vw Anton;color:#FFBF00}#start span{font:800 1.4vw Unbounded;color:#8ACCE4}
+#conn{position:absolute;right:1.4em;bottom:.9em;font:800 .9em Unbounded;color:#ff9a9a;opacity:0}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="beam" id="bA"></div><div class="beam b" id="bB"></div>
+  <div class="bulbs" style="top:.9em" id="bt"></div><div class="bulbs" style="bottom:.9em" id="bb"></div>
+
+  <div class="top"><div class="lbl" id="lbl"></div><img class="logo" src="logo-white.png" alt="Blue Gold Club" onerror="this.style.display='none'"></div>
+  <div id="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="rgba(2,20,40,.6)" stroke="rgba(255,255,255,.12)" stroke-width="7"/><circle id="arc" cx="50" cy="50" r="44" fill="none" stroke="#FFBF00" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><div class="num" id="tnum"></div></div>
+
+  <section class="screen" id="lobby"><div class="kick">Blue Gold Club presents</div><div class="title"><span style="color:#FFBF00">Golden</span> Buzzer</div><div class="vs"><span id="vA"></span><i>VS</i><span id="vB"></span></div></section>
+  <section class="screen" id="intro"><div class="kick" id="iK"></div><div class="title" id="iT"></div><div class="x2" id="iX"></div></section>
+  <section class="screen" id="qv"><div class="cat" id="cat"></div><div class="qen" id="qen"></div><div class="qar" id="qar"></div><div class="below" id="below"></div></section>
+  <section class="screen" id="final"><div class="kick">And the winner is</div><div class="title who" id="who"></div><div class="sc" id="fsc"></div></section>
+
+  <div class="pods" id="pods">
+    <div class="pod l" id="pA"><div class="lamp"></div><div><div class="pn" id="nA"></div><div class="meta" id="mA"></div></div><div class="ps" id="sA"></div></div>
+    <div class="pod r" id="pB"><div class="lamp"></div><div><div class="pn" id="nB"></div><div class="meta" id="mB"></div></div><div class="ps" id="sB"></div></div>
+  </div>
+  <div id="flash"></div>
+  <div id="banner"></div>
+  <div id="wov"><div class="ww"><div class="ptr"></div><div id="wh"></div></div><div id="wres"></div></div>
+  <canvas id="fx"></canvas>
+  <div id="conn">Reconnecting…</div>
+</div>
+<div id="start"><div><b>GOLDEN BUZZER</b><span>Click to start the show (sound + full screen)</span></div></div>
+<audio id="music" src="music.mp3" loop preload="auto"></audio>
+<script src="gb.js"></script>
+<script>
+const { connect, SFX, audio, esc, points } = GB;
+const $ = id => document.getElementById(id);
+['bt', 'bb'].forEach(id => $(id).innerHTML = '<i></i>'.repeat(30));
+$('wh').innerHTML = [[45, '4 OPTIONS', ''], [135, 'AUDIENCE', 'w'], [225, '4 OPTIONS', ''], [315, 'AUDIENCE', 'w']]
+  .map(([a, l, c]) => `<span class="wl ${c}" style="transform:translate(-50%,-50%) rotate(${a}deg) translateY(-5.2em)">${l}</span>`).join('');
+
+let S = null, prev = null, live = false, musicOk = false, spinUntil = 0, lastTick = -1, hornFor = 0;
+const music = $('music'); music.volume = 0;
+$('start').onclick = () => {
+  audio(); live = true; $('start').remove();
+  document.documentElement.requestFullscreen?.().catch(() => {});
+  music.play().then(() => musicOk = true).catch(() => {});
+};
+
+// ---------- effects ----------
+function banner(text, color = '#fff') { const b = $('banner'); b.textContent = text; b.style.color = color; b.classList.remove('go'); void b.offsetWidth; b.classList.add('go'); }
+function flash(c) { const f = $('flash'); f.style.transition = 'none'; f.style.background = `radial-gradient(circle at 50% 50%, ${c}, transparent 70%)`; f.style.opacity = 1; requestAnimationFrame(() => { f.style.transition = 'opacity .8s'; f.style.opacity = 0; }); }
+const play = n => live && SFX[n]();
+
+// confetti
+const cv = $('fx'), cx = cv.getContext('2d'); let parts = [], running = false;
+function size() { const r = cv.getBoundingClientRect(); cv.width = r.width; cv.height = r.height; }
+addEventListener('resize', size); size();
+function confetti(n = 220, x = .5, y = .45) {
+  const W = cv.width, H = cv.height, C = ['#FFBF00', '#FFD75E', '#fff', '#45B4E2', '#0071BC'];
+  for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, v = (.4 + Math.random()) * W * .012; parts.push({ x: x * W, y: y * H, vx: Math.cos(a) * v, vy: Math.sin(a) * v - W * .008, w: W * (.006 + Math.random() * .008), h: W * .004, r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: C[i % 5], l: 1 }); }
+  if (!running) { running = true; requestAnimationFrame(stepFx); }
+}
+function stepFx() {
+  cx.clearRect(0, 0, cv.width, cv.height);
+  parts.forEach(p => { p.vy += cv.width * .00022; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.l -= .006; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r); cx.globalAlpha = Math.max(0, p.l); cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.r * 2))); cx.restore(); });
+  parts = parts.filter(p => p.l > 0 && p.y < cv.height + 50);
+  if (parts.length) requestAnimationFrame(stepFx); else { running = false; cx.clearRect(0, 0, cv.width, cv.height); }
+}
+function spin(w) {
+  const wh = $('wh'), res = $('wres');
+  wh.style.transition = 'none'; wh.style.transform = 'rotate(0deg)'; void wh.offsetWidth;
+  const target = 360 * 5 + (360 - (w.slot * 90 + 45));
+  $('wov').classList.add('on'); res.style.opacity = 0;
+  requestAnimationFrame(() => { wh.style.transition = 'transform 3.2s cubic-bezier(.12,.7,.18,1)'; wh.style.transform = `rotate(${target}deg)`; });
+  let t = 0; for (let k = 0; k < 24; k++) { t += 35 + k * k * .9; setTimeout(() => play('tick'), t); }
+  spinUntil = Date.now() + 3400;
+  setTimeout(() => { res.textContent = w.result === 'options' ? '4 options!' : 'Audience help!'; res.style.opacity = 1; play('right'); confetti(90, .5, .5); }, 3300);
+  setTimeout(() => { $('wov').classList.remove('on'); render(); }, 5000);
+}
+
+// ---------- render ----------
+const show = id => ['lobby', 'intro', 'qv', 'final'].forEach(s => $(s).classList.toggle('on', s === id));
+function render() {
+  if (!S) { show('lobby'); $('vA').textContent = ''; $('vB').textContent = ''; return; }
+  const T = S.teams, p = S.phase;
+  // label
+  $('lbl').innerHTML = !S.round ? `MATCH <b>${esc(S.match)}</b>` : S.round === 'SD' ? `<b>SUDDEN DEATH</b>` :
+    `ROUND <b>${S.round}</b>${['question', 'answer', 'steal', 'reveal'].includes(p) ? ` · Q <b>${S.qi + 1}</b>/5` : ''}${S.round === 2 ? '<span class="chip">×2 POINTS</span>' : ''}`;
+  // screens
+  if (p === 'lobby') { show('lobby'); $('vA').textContent = T.A.name; $('vB').textContent = T.B.name; }
+  else if (p === 'roundIntro' || p === 'tie') {
+    show('intro');
+    $('iK').textContent = p === 'tie' ? `${T.A.score} – ${T.B.score} · it's a tie` : (S.round === 2 ? 'Harder questions' : `${T.A.name} vs ${T.B.name}`);
+    $('iT').innerHTML = p === 'tie' ? 'Sudden <span style="color:#FFBF00">death</span>' : `Round <span style="color:#FFBF00">${S.round}</span>`;
+    $('iX').textContent = p === 'tie' ? 'First right answer wins' : (S.round === 2 ? 'Double points' : '5 questions · 1 point each');
+  }
+  else if (p === 'final') { show('final'); $('who').textContent = T[S.winner]?.name || ''; $('fsc').textContent = `${T.A.name} ${T.A.score} – ${T.B.score} ${T.B.name}`; }
+  else {
+    show('qv');
+    const q = S.q || {};
+    $('cat').textContent = q.cat || ''; $('qen').textContent = q.en || ''; $('qar').textContent = q.ar || '';
+    const L = 'ABCD'; let b = '';
+    const optsReady = S.showOptions && q.options && Date.now() >= spinUntil;
+    if (S.reveal) {
+      b = `<div class="answer"><small>ANSWER</small><b>${esc(q.answer)}</b>${q.answer_ar ? `<span>${esc(q.answer_ar)}</span>` : ''}</div>`;
+      if (S.showOptions && q.options) b = `<div class="opts on">${q.options.map((o, i) => `<div class="${L[i] === q.correct ? 'good' : ''}"><b>${L[i]}</b>${esc(o)}</div>`).join('')}</div>`;
+    } else if (optsReady) b = `<div class="opts" id="optsEl">${q.options.map((o, i) => `<div><b>${L[i]}</b>${esc(o)}</div>`).join('')}</div>`;
+    else if (S.audience && Date.now() >= spinUntil) b = `<div class="aud"><b>AUDIENCE HELP</b><span>Two students from the crowd join ${esc(T[S.wheel?.team]?.name || '')}</span></div>`;
+    if ($('below').dataset.k !== b) { $('below').innerHTML = b; $('below').dataset.k = b; const o = $('optsEl'); if (o) requestAnimationFrame(() => o.classList.add('on')); }
+  }
+  // pods
+  $('pods').classList.toggle('on', p !== 'final' && p !== 'roundIntro' && p !== 'tie');
+  ['A', 'B'].forEach(t => {
+    const pod = $('p' + t), ans = (p === 'answer' || p === 'steal') && S.answering === t;
+    const buzzed = S.buzz && S.buzz.team === t;
+    const bad = S.verdict && !S.verdict.ok && S.verdict.team === t && (S.locked || []).includes(t) && p !== 'question';
+    pod.classList.toggle('lit', !!(ans || buzzed || (p === 'reveal' && S.verdict?.ok && S.verdict.team === t)));
+    pod.classList.toggle('bad', !!bad && !ans);
+    pod.classList.toggle('locked', (S.locked || []).includes(t) && !ans && p !== 'reveal');
+    $('n' + t).textContent = T[t].name; $('s' + t).textContent = T[t].score;
+    $('m' + t).innerHTML = `${ans ? '<span class="tag ans">ANSWERING</span>' : ''}<span class="tag ${T[t].joker ? '' : 'off'}">JOKER</span>`;
+  });
+}
+
+// ---------- state changes → sound and motion ----------
+function onState(s) {
+  prev = S; S = s;
+  if (S && prev) {
+    if (S.buzz && (!prev.buzz || prev.buzz.t !== S.buzz.t)) { play('buzz'); flash('rgba(255,191,0,.45)'); banner(`${S.teams[S.buzz.team].name}!`, '#FFBF00'); }
+    if (S.verdict && (!prev.verdict || prev.verdict.at !== S.verdict.at)) {
+      if (S.verdict.ok) { play('right'); confetti(S.phase === 'final' ? 320 : 160, S.verdict.team === 'A' ? .25 : .75, .75); banner(S.round === 'SD' ? 'Winner!' : `Correct +${points(S.round)}`, '#FFBF00'); }
+      else { play('wrong'); flash('rgba(255,70,70,.55)'); banner('Wrong', '#ff7a7a'); }
+    }
+    if (S.phase === 'steal' && prev.phase !== 'steal') setTimeout(() => { play('steal'); banner(`Steal! ${S.teams[S.answering].name}`, '#8ACCE4'); }, 1500);
+    if (S.reveal && !prev.reveal && !(S.verdict && S.verdict.ok)) play('reveal');
+    if (S.wheel && (!prev.wheel || prev.wheel.at !== S.wheel.at)) spin(S.wheel);
+    if ((S.phase === 'roundIntro' || S.phase === 'tie') && prev.phase !== S.phase) play('whoop');
+    if (S.phase === 'final' && prev.phase !== 'final') { setTimeout(() => { play('fanfare'); confetti(380, .5, .4); }, 400); }
+    if (S.phase === 'lobby' && S.buzz && S.armed === false && (!prev.buzz)) {}
+  }
+  render();
+}
+function loop() {
+  // timer ring
+  const t = S && S.timer, ring = $('ring');
+  const active = t && ['question', 'answer', 'steal'].includes(S.phase) && !(S.phase === 'question' && !S.armed);
+  ring.style.opacity = active ? 1 : 0;
+  if (active) {
+    const now = Date.now(), left = Math.max(0, t.end - now), frac = now < (t.start || 0) ? 1 : Math.min(1, left / (t.total * 1000));
+    const sec = Math.min(t.total, Math.ceil(left / 1000));
+    $('tnum').textContent = sec; $('arc').style.strokeDashoffset = 276.5 * (1 - frac);
+    ring.classList.toggle('low', sec <= 5);
+    if (sec <= 5 && sec > 0 && sec !== lastTick && now >= (t.start || 0)) { lastTick = sec; play('tick'); }
+    if (left === 0 && hornFor !== t.end) { hornFor = t.end; play('horn'); }
+  }
+  // music ducking
+  if (musicOk) {
+    const want = S && S.music ? (['question', 'answer', 'steal'].includes(S?.phase) ? .06 : .32) : 0;
+    music.volume += (want - music.volume) * .05;
+  }
+  if (spinUntil && Date.now() >= spinUntil && $('below') && S && (S.showOptions || S.audience) && !$('below').innerHTML) render();
+  requestAnimationFrame(loop);
+}
+
+(async () => {
+  try {
+    const store = await connect();
+    store.subscribe(s => { $('conn').style.opacity = 0; onState(s); }, () => { $('conn').style.opacity = 1; });
+  } catch (e) { $('conn').textContent = 'Cannot connect'; $('conn').style.opacity = 1; }
+  loop();
+})();
+</script>
+</body>
+</html>

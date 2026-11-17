@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Golden Buzzer · Host</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@500;600;700;800&family=Unbounded:wght@700;800&family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#FFBF00;--gold2:#FFD75E;--c1:#8ACCE4;--c2:#45B4E2;--blue:#0071BC;--night:#021428;--card:#06223a;--line:rgba(138,204,228,.18);--red:#ff5a5a;--green:#3ddc84}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Manrope,sans-serif;background:var(--night);color:#eaf4fb;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;border-bottom:1px solid var(--line);background:#010b18;position:sticky;top:0;z-index:5}
+header h1{font:1.5rem Anton;letter-spacing:.04em}header h1 span{color:var(--gold)}
+.pill{padding:6px 12px;border-radius:99px;font-weight:800;font-size:.8rem;background:#12304d}
+.pill.ok{background:rgba(61,220,132,.15);color:var(--green)}.pill.bad{background:rgba(255,90,90,.15);color:var(--red)}
+main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;padding:18px 22px;max-width:1500px;margin:auto}
+@media(max-width:1000px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.card h2{font:800 .78rem Unbounded;letter-spacing:.14em;color:var(--c1);margin-bottom:12px;text-transform:uppercase}
+label{display:block;font-weight:700;font-size:.8rem;color:var(--c1);margin:10px 0 6px}
+input,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:#031325;color:#fff;font:inherit;font-weight:600}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1}
+button{font:inherit;font-weight:800;border:0;border-radius:12px;padding:13px 16px;cursor:pointer;background:#12304d;color:#fff;transition:filter .15s,transform .1s}
+button:hover{filter:brightness(1.15)}button:active{transform:translateY(1px)}
+button:disabled{opacity:.35;cursor:not-allowed}
+.gold{background:var(--gold);color:#241a00}.ok{background:var(--green);color:#03240f}.no{background:var(--red);color:#fff}.blue{background:var(--blue)}
+.big{font-size:1.15rem;padding:18px 20px}
+.phase{font:1.9rem Anton;letter-spacing:.03em;text-transform:uppercase}
+.sub{color:var(--c1);font-weight:700}
+.q{margin-top:12px;padding:16px;border-radius:14px;background:#031325;border:1px solid var(--line)}
+.q .en{font-size:1.25rem;font-weight:800;line-height:1.35}
+.q .ar{font-family:Cairo;font-weight:700;font-size:1.25rem;direction:rtl;color:var(--c1);margin-top:6px}
+.q .ans{margin-top:12px;padding:10px 14px;border-radius:10px;background:rgba(255,191,0,.12);color:var(--gold2);font-weight:800}
+.q .opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;font-weight:700;font-size:.9rem}
+.q .opts div{padding:7px 10px;border-radius:8px;background:#0a2742}.q .opts .c{background:rgba(255,191,0,.2);color:var(--gold2)}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.team{padding:14px;border-radius:14px;background:#031325;border:2px solid var(--line)}
+.team.act{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,191,0,.15)}
+.team .n{font-weight:800;font-size:1.05rem}.team .s{font:3rem Anton;line-height:1.1}
+.team .meta{font-size:.78rem;font-weight:800;color:var(--c1)}
+.timer{font:2.6rem Anton;color:var(--gold)}
+.hint{font-size:.8rem;color:#8fa9bd;line-height:1.5;margin-top:8px}
+.actions{display:grid;gap:10px;margin-top:14px}
+.actions .row button{flex:1}
+kbd{background:#12304d;border-radius:6px;padding:2px 7px;font-weight:800}
+a{color:var(--c1)}
+.log{font-size:.8rem;color:#8fa9bd;max-height:150px;overflow:auto;line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <h1>GOLDEN <span>BUZZER</span> · HOST</h1>
+  <div class="row" style="flex:0 0 auto;gap:8px">
+    <span class="pill" id="conn">Connecting…</span>
+    <a class="pill" href="#" id="openDisplay" target="_blank">Open display ↗</a>
+  </div>
+</header>
+<main>
+  <section>
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div style="flex:1"><div class="sub" id="where">No match</div><div class="phase" id="phase">Lobby</div></div>
+        <div style="flex:0 0 auto;text-align:right"><div class="timer" id="timer">--</div><div class="sub" style="font-size:.75rem" id="timerKind"></div></div>
+      </div>
+      <div class="q" id="qbox" style="display:none"></div>
+      <div class="actions" id="actions"></div>
+      <p class="hint">Laptop buzzers (backup): <kbd>A</kbd> = left team · <kbd>L</kbd> = right team, while this tab has focus.</p>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h2>Scores</h2>
+      <div class="teams" id="teams"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h2>1 · Questions</h2>
+      <label for="csvUrl">Google Sheet CSV link (File › Share › Publish to web › CSV)</label>
+      <div class="row"><input id="csvUrl" placeholder="https://docs.google.com/spreadsheets/d/e/…/pub?output=csv"><button id="loadUrl" style="flex:0 0 auto">Load</button></div>
+      <div class="row" style="margin-top:10px">
+        <button id="loadDemo">Use demo questions</button>
+        <label style="margin:0;flex:1"><input type="file" id="csvFile" accept=".csv" style="padding:9px"></label>
+      </div>
+      <p class="hint" id="qinfo">No questions loaded.</p>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h2>2 · New match</h2>
+      <label for="match">Match (from the sheet's "match" column)</label>
+      <select id="match"></select>
+      <div class="row">
+        <div><label for="nameA">Left team</label><input id="nameA" placeholder="Team name"></div>
+        <div><label for="nameB">Right team</label><input id="nameB" placeholder="Team name"></div>
+      </div>
+      <div class="actions"><button class="gold" id="newMatch">Start new match</button></div>
+      <p class="hint">Starting a new match resets scores and jokers on every screen.</p>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h2>Tools</h2>
+      <div class="actions">
+        <div class="row"><button id="testBuzz">Test buzzers</button><button id="clearBuzz">Clear buzz</button></div>
+        <div class="row"><button id="music">Music: on</button><button id="rearm">Re-open buzzers</button></div>
+      </div>
+      <p class="hint">Phone buzzers: open the home page and scan the QR codes, or use the links there.</p>
+    </div>
+  </section>
+</main>
+<script src="gb.js"></script>
+<script>
+const { connect, blankState, matchSets, parseCSV, other, points, Q_TIME, A_TIME, AUD_TIME, SLOTS, esc, LOCAL, GAME } = GB;
+
+const $ = id => document.getElementById(id);
+const qs = location.search;
+$('openDisplay').href = 'display.html' + qs;
+let store, S = null, SETS = {}, busy = false;
+
+// ---------- questions ----------
+function useCSV(text, label) {
+  try {
+    SETS = matchSets(parseCSV(text));
+    const keys = Object.keys(SETS).sort((a, b) => (+a || 0) - (+b || 0));
+    if (!keys.length) throw new Error('no rows with a match number');
+    localStorage.setItem('gb_csv', text);
+    $('match').innerHTML = keys.map(k => `<option value="${esc(k)}">Match ${esc(k)} · ${SETS[k].r1.length}+${SETS[k].r2.length} questions · ${SETS[k].sd.length} sudden-death</option>`).join('');
+    $('qinfo').textContent = `${label}: ${keys.length} match set(s) loaded.`;
+  } catch (e) { $('qinfo').textContent = 'Could not read the questions: ' + e.message; }
+}
+$('csvUrl').value = localStorage.getItem('gb_csvurl') || '';
+$('loadUrl').onclick = async () => {
+  const u = $('csvUrl').value.trim(); if (!u) return;
+  localStorage.setItem('gb_csvurl', u);
+  try { useCSV(await (await fetch(u, { cache: 'no-store' })).text(), 'Google Sheet'); } catch (e) { $('qinfo').textContent = 'Could not load the link. Is the sheet published as CSV?'; }
+};
+$('loadDemo').onclick = () => useCSV(GB.DEMO_CSV, 'Demo questions');
+$('csvFile').onchange = async e => { const f = e.target.files[0]; if (f) useCSV(await f.text(), f.name); };
+if (localStorage.getItem('gb_csv')) useCSV(localStorage.getItem('gb_csv'), 'Last loaded questions');
+
+// ---------- game actions ----------
+const now = () => Date.now();
+const P = p => store.patch(p);
+const list = (round) => { const s = SETS[S.match]; if (!s) return []; return round === 1 ? s.r1 : round === 2 ? s.r2 : s.sd; };
+function loadQ(round, qi) {
+  const q = list(round)[qi];
+  if (!q) { alert(`No question ${qi + 1} for ${round === 'SD' ? 'sudden death' : 'round ' + round} in match ${S.match}. Check the sheet.`); return; }
+  P({ round, qi, q, phase: 'question', armed: false, buzz: null, answering: null, locked: [], timer: null, wheel: null, showOptions: false, audience: false, verdict: null, reveal: false });
+}
+const A = {
+  newMatch() {
+    const m = $('match').value; if (!m) return alert('Load the questions first.');
+    const a = $('nameA').value.trim() || 'Team A', b = $('nameB').value.trim() || 'Team B';
+    if (S && S.phase !== 'lobby' && S.phase !== 'final' && !confirm('A match is in progress. Start a new one?')) return;
+    store.init(blankState(a, b, m));
+  },
+  startRound1: () => P({ phase: 'roundIntro', round: 1, qi: 0, buzz: null, armed: false }),
+  firstQ: () => loadQ(S.round === 0 ? 1 : S.round, 0),
+  arm: () => P({ armed: true, buzz: null, timer: { end: now() + Q_TIME * 1000, start: now(), total: Q_TIME, kind: 'q' } }),
+  revealNone: () => P({ phase: 'reveal', reveal: true, armed: false, timer: null, answering: null }),
+  correct() {
+    const t = S.answering; if (!t) return;
+    const teams = structuredClone(S.teams);
+    if (S.round === 'SD') return P({ teams, verdict: { team: t, ok: true, at: now() }, reveal: true, timer: null, armed: false, phase: 'final', winner: t });
+    teams[t].score += points(S.round);
+    P({ teams, verdict: { team: t, ok: true, at: now() }, reveal: true, phase: 'reveal', timer: null, armed: false });
+  },
+  wrong() {
+    const t = S.answering; if (!t) return;
+    const locked = [...new Set([...(S.locked || []), t])], o = other(t);
+    const v = { verdict: { team: t, ok: false, at: now() }, locked, wheel: null, showOptions: S.showOptions, audience: false };
+    if (!locked.includes(o)) P({ ...v, phase: 'steal', answering: o, buzz: null, timer: { end: now() + A_TIME * 1000, start: now(), total: A_TIME, kind: 'a' } });
+    else P({ ...v, phase: 'reveal', reveal: true, answering: null, timer: null });
+  },
+  joker() {
+    const t = S.answering; if (!t || !S.teams[t].joker) return;
+    let slot = Math.floor(Math.random() * 4);
+    if (SLOTS[slot] === 'options' && !S.q.options) slot = 1;
+    const result = SLOTS[slot], teams = structuredClone(S.teams); teams[t].joker = false;
+    const sec = result === 'audience' ? AUD_TIME : A_TIME + 5, start = now() + 3600;
+    P({ teams, wheel: { team: t, slot, result, at: now() }, showOptions: result === 'options', audience: result === 'audience', timer: { end: start + sec * 1000, start, total: sec, kind: 'a' } });
+  },
+  next() {
+    if (S.round === 'SD') return loadQ('SD', S.qi + 1);
+    if (S.qi + 1 < list(S.round).length) return loadQ(S.round, S.qi + 1);
+    if (S.round === 1) return P({ phase: 'roundIntro', round: 2, qi: 0, reveal: false, verdict: null, wheel: null, showOptions: false, audience: false });
+    const a = S.teams.A.score, b = S.teams.B.score;
+    if (a === b) return P({ phase: 'tie', reveal: false, verdict: null, wheel: null, showOptions: false, audience: false });
+    P({ phase: 'final', winner: a > b ? 'A' : 'B', reveal: false, verdict: null, wheel: null, showOptions: false, audience: false });
+  },
+  suddenDeath: () => loadQ('SD', 0),
+  score(t, d) { const teams = structuredClone(S.teams); teams[t].score += d; P({ teams }); },
+  toggleJoker(t) { const teams = structuredClone(S.teams); teams[t].joker = !teams[t].joker; P({ teams }); },
+  timerExtend: () => S.timer && P({ timer: { ...S.timer, end: Math.max(now(), S.timer.end) + 5000, total: S.timer.total + 5 } }),
+};
+window.A = A;
+$('newMatch').onclick = A.newMatch;
+$('testBuzz').onclick = () => S && P({ armed: true, buzz: null, locked: [] });
+$('clearBuzz').onclick = () => S && P({ buzz: null, armed: false });
+$('rearm').onclick = () => S && S.phase !== 'lobby' && P({ buzz: null, armed: true, phase: 'question', answering: null, verdict: null, timer: S.timer && S.timer.kind === 'q' ? S.timer : { end: now() + Q_TIME * 1000, start: now(), total: Q_TIME, kind: 'q' } });
+$('music').onclick = () => S && P({ music: !S.music });
+
+// keyboard backup buzzers
+addEventListener('keydown', e => {
+  if (e.target.matches('input,select,textarea') || !store) return;
+  if (e.key === 'a' || e.key === 'A') store.tryBuzz('A');
+  if (e.key === 'l' || e.key === 'L') store.tryBuzz('B');
+});
+
+// ---------- render ----------
+const PH = { lobby: 'Lobby', roundIntro: 'Round intro', question: 'Question', answer: 'Answering', steal: 'Steal', reveal: 'Answer revealed', tie: 'Tie!', final: 'Winner' };
+function btn(label, fn, cls = '', dis = false) { return `<button class="${cls}" onclick="${fn}" ${dis ? 'disabled' : ''}>${label}</button>`; }
+function render() {
+  if (!S) { $('phase').textContent = 'No match yet'; $('where').textContent = 'Load questions, then start a new match'; $('actions').innerHTML = ''; $('teams').innerHTML = ''; return; }
+  const T = S.teams, ans = S.answering;
+  $('where').textContent = `Match ${S.match || '–'} · ${S.round === 'SD' ? 'Sudden death' : S.round ? 'Round ' + S.round + (S.round === 2 ? ' (×2)' : '') : 'Not started'}${S.q && S.round ? ` · Q${S.qi + 1}/${S.round === 'SD' ? list('SD').length : list(S.round).length}` : ''}`;
+  $('phase').textContent = (PH[S.phase] || S.phase) + (ans && (S.phase === 'answer' || S.phase === 'steal') ? ' · ' + T[ans].name : '');
+  $('music').textContent = 'Music: ' + (S.music ? 'on' : 'off');
+  // question box
+  const showQ = S.q && ['question', 'answer', 'steal', 'reveal'].includes(S.phase) || (S.phase === 'final' && S.round === 'SD');
+  $('qbox').style.display = showQ ? 'block' : 'none';
+  if (showQ) {
+    const q = S.q;
+    $('qbox').innerHTML = `<div class="sub" style="font-size:.75rem">${esc(q.cat)}</div><div class="en">${esc(q.en)}</div><div class="ar">${esc(q.ar)}</div>
+      <div class="ans">Answer: ${esc(q.answer)} ${q.answer_ar ? '· <span style="font-family:Cairo">' + esc(q.answer_ar) + '</span>' : ''}</div>
+      ${q.options ? `<div class="opts">${q.options.map((o, i) => `<div class="${'ABCD'[i] === q.correct ? 'c' : ''}">${'ABCD'[i]} · ${esc(o)}</div>`).join('')}</div>` : '<p class="hint">No options in the sheet: the joker will always land on Audience.</p>'}`;
+  }
+  // actions
+  let h = '';
+  const p = S.phase;
+  if (p === 'lobby') h = btn('Start round 1 ▶', 'A.startRound1()', 'gold big');
+  if (p === 'roundIntro') h = btn(`First question of round ${S.round} ▶`, 'A.firstQ()', 'gold big');
+  if (p === 'question') h = `<div class="row">${btn(S.armed ? 'Buzzers open…' : 'Open buzzers + start 20 s ▶', 'A.arm()', 'gold big', S.armed)}${btn('Nobody: reveal answer', 'A.revealNone()', '')}</div>`;
+  if (p === 'answer' || p === 'steal') h = `<div class="row">${btn('✓ Correct', 'A.correct()', 'ok big')}${btn('✗ Wrong', 'A.wrong()', 'no big')}</div>
+      <div class="row">${btn(`Joker (${esc(T[ans].name)})`, 'A.joker()', 'blue', !T[ans].joker || !!S.wheel)}${btn('+5 s', 'A.timerExtend()', '')}</div>`;
+  if (p === 'reveal') h = btn(S.round === 'SD' ? 'Next sudden-death question ▶' : (S.qi + 1 < list(S.round).length ? 'Next question ▶' : (S.round === 1 ? 'End of round 1 ▶' : 'End of match ▶')), 'A.next()', 'gold big');
+  if (p === 'tie') h = btn('Sudden-death question ▶', 'A.suddenDeath()', 'gold big');
+  if (p === 'final') h = `<p class="sub" style="font-size:1.2rem">Winner: ${esc(T[S.winner]?.name || '')}</p>`;
+  $('actions').innerHTML = h;
+  // teams
+  $('teams').innerHTML = ['A', 'B'].map(t => `<div class="team ${ans === t && (p === 'answer' || p === 'steal') ? 'act' : ''}">
+      <div class="meta">${t === 'A' ? 'LEFT' : 'RIGHT'} · ${S.buzz && S.buzz.team === t ? 'BUZZED' : (S.locked || []).includes(t) ? 'LOCKED' : ''}</div>
+      <div class="n">${esc(T[t].name)}</div><div class="s">${T[t].score}</div>
+      <div class="row">${btn('−1', `A.score('${t}',-1)`)}${btn('+1', `A.score('${t}',1)`)}${btn(T[t].joker ? 'Joker ✓' : 'Joker used', `A.toggleJoker('${t}')`)}</div></div>`).join('');
+}
+function tickTimer() {
+  const t = S && S.timer;
+  if (!t) { $('timer').textContent = '--'; $('timerKind').textContent = ''; }
+  else { const s = Math.max(0, Math.ceil((t.end - Date.now()) / 1000)); $('timer').textContent = String(Math.min(s, t.total)).padStart(2, '0'); $('timerKind').textContent = t.kind === 'q' ? 'question' : 'answer'; }
+  requestAnimationFrame(tickTimer);
+}
+
+// ---------- start ----------
+(async () => {
+  try {
+    store = await connect();
+    $('conn').textContent = store.mode === 'local' ? 'Offline mode (this computer)' : 'Online · game “' + GAME + '”'; $('conn').className = 'pill ok';
+    store.subscribe(s => {
+      S = s;
+      // a buzz during a question hands the answer to that team
+      if (S && S.phase === 'question' && S.buzz && !busy) {
+        busy = true;
+        P({ phase: 'answer', answering: S.buzz.team, armed: false, timer: { end: Date.now() + A_TIME * 1000, start: Date.now(), total: A_TIME, kind: 'a' } }).finally(() => busy = false);
+      }
+      render();
+    }, () => { $('conn').textContent = 'Connection error: check Firestore'; $('conn').className = 'pill bad'; });
+    tickTimer();
+  } catch (e) { console.error(e); $('conn').textContent = 'Cannot connect'; $('conn').className = 'pill bad'; }
+})();
+</script>
+</body>
+</html>
